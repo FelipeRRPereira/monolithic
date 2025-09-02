@@ -1,9 +1,5 @@
 import { Sequelize } from 'sequelize-typescript'
 import { ClientModel } from '../repository/client.model'
-import AddClientUseCase from '../usecase/add-client/add-client.usecase'
-import ClientRepository from '../repository/client.repository'
-import ClientAdmFacade from './client-adm.facade'
-import FindClientUseCase from '../usecase/find-client/find-client.usecase'
 import ClientAdmFacadeFactory from '../factory/facade.factory'
 
 describe('ClientAdmFacade test', () => {
