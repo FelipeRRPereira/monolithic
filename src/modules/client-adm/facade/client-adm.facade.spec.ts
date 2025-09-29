@@ -1,8 +1,12 @@
 import { Sequelize } from 'sequelize-typescript'
 import { ClientModel } from '../repository/client.model'
+import ClientRepository from '../repository/client.repository'
+import AddClientUseCase from '../usecase/add-client/add-client.usecase'
+import ClientAdmFacade from './client-adm.facade'
 import ClientAdmFacadeFactory from '../factory/facade.factory'
+import Address from '../../@shared/domain/value-object/address'
 
-describe('ClientAdmFacade test', () => {
+describe('Client Adm Facade test', () => {
   let sequelize: Sequelize
 
   beforeEach(async () => {
@@ -22,53 +26,81 @@ describe('ClientAdmFacade test', () => {
   })
 
   it('should create a client', async () => {
-    const facadeFactory = ClientAdmFacadeFactory.create()
+    const repository = new ClientRepository()
+    const addUsecase = new AddClientUseCase(repository)
+    const facade = new ClientAdmFacade({
+      addUsecase: addUsecase,
+      findUsecase: undefined,
+    })
 
     const input = {
-      id: '123',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      address: '123 Main St',
+      id: '1',
+      name: 'Lucian',
+      email: 'lucian@xpto.com',
+      document: '1234-5678',
+      address: new Address(
+        'Rua 123',
+        '99',
+        'Casa Verde',
+        'Criciúma',
+        'SC',
+        '88888-888'
+      ),
     }
 
-    await facadeFactory.add(input)
+    await facade.add(input)
 
-    const result = await ClientModel.findOne({
-      where: { id: input.id },
-    })
-    const client = result?.toJSON()
+    const clientDb = await ClientModel.findOne({ where: { id: '1' } })
+    const client = clientDb?.toJSON()
 
     expect(client).toBeDefined()
-    expect(client!.name).toEqual(input.name)
-    expect(client!.email).toEqual(input.email)
-    expect(client!.address).toEqual(input.address)
+    expect(client.id).toBe(input.id)
+    expect(client.name).toBe(input.name)
+    expect(client.email).toBe(input.email)
+    expect(client.document).toBe(input.document)
+    expect(client.street).toBe(input.address.street)
   })
 
   it('should find a client', async () => {
-    const facadeFactory = ClientAdmFacadeFactory.create()
+    // const repository = new ClientRepository()
+    // const addUsecase = new AddClientUseCase(repository)
+    // const findUseCase = new FindClientUseCase(repository)
+    // const facade = new ClientAdmFacade({
+    //   addUseCase: addUsecase,
+    //   findUseCase: findUseCase
+    // })
+
+    const facade = ClientAdmFacadeFactory.create()
 
     const input = {
-      id: '123',
-      name: 'Jane Doe',
-      email: 'jane.doe@example.com',
-      address: '456 Elm St',
+      id: '1',
+      name: 'Lucian',
+      email: 'lucian@xpto.com',
+      document: '1234-5678',
+      address: new Address(
+        'Rua 123',
+        '99',
+        'Casa Verde',
+        'Criciúma',
+        'SC',
+        '88888-888'
+      ),
     }
 
-    await ClientModel.create({
-      id: input.id,
-      name: input.name,
-      email: input.email,
-      address: input.address,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })
+    await facade.add(input)
 
-    const result = await facadeFactory.find(input)
+    const client = await facade.find({ id: '1' })
 
-    expect(result).toBeDefined()
-    expect(result.id).toEqual(input.id)
-    expect(result.name).toEqual(input.name)
-    expect(result.email).toEqual(input.email)
-    expect(result.address).toEqual(input.address)
+    expect(client).toBeDefined()
+    expect(client.id).toBe(input.id)
+    expect(client.name).toBe(input.name)
+    expect(client.email).toBe(input.email)
+    expect(client.document).toBe(input.document)
+    expect(client.address.street).toBe(input.address.street)
+    expect(client.address.number).toBe(input.address.number)
+    expect(client.address.complement).toBe(input.address.complement)
+    expect(client.address.city).toBe(input.address.city)
+    expect(client.address.state).toBe(input.address.state)
+    expect(client.address.zipCode).toBe(input.address.zipCode)
   })
 })
