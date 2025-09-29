@@ -1,6 +1,9 @@
-import Id from '../../../@shared/domain/value-object/id.value-object'
+import Address from '../../../@shared/domain/value-object/address'
 import ClientGatewayInterface from '../../gateway/client.gateway'
-import { FindClientInputDto, FindClientOutputDto } from './find-client.usecase.dto'
+import {
+  FindClientUseCaseInputDto,
+  FindClientUseCaseOutputDto,
+} from './find-client.usecase.dto'
 
 export default class FindClientUseCase {
   private _clientRepository: ClientGatewayInterface
@@ -9,19 +12,26 @@ export default class FindClientUseCase {
     this._clientRepository = clientRepository
   }
 
-  async execute(input: FindClientInputDto): Promise<FindClientOutputDto> {
-    const client = await this._clientRepository.find(input.id)
-    if (!client) {
-      throw new Error(`Client with id ${input.id} not found`)
-    }
-    
+  async execute(
+    input: FindClientUseCaseInputDto
+  ): Promise<FindClientUseCaseOutputDto> {
+    const result = await this._clientRepository.find(input.id)
+
     return {
-      id: client.id.id,
-      name: client.name,
-      email: client.email,
-      address: client.address,
-      createdAt: client.createdAt,
-      updatedAt: client.updatedAt,
+      id: result.id.id,
+      name: result.name,
+      email: result.email,
+      document: result.document,
+      address: new Address(
+        result.address.street,
+        result.address.number,
+        result.address.complement,
+        result.address.city,
+        result.address.state,
+        result.address.zipCode
+      ),
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
     }
   }
 }

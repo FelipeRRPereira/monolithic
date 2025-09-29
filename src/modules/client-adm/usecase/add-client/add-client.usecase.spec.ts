@@ -1,3 +1,4 @@
+import Address from '../../../@shared/domain/value-object/address'
 import AddClientUseCase from './add-client.usecase'
 
 const MockRepository = () => {
@@ -7,25 +8,31 @@ const MockRepository = () => {
   }
 }
 
-describe('AddClientUseCase Unit Tests', () => {
+describe('Add Client use case unit test', () => {
   it('should add a client', async () => {
     const repository = MockRepository()
     const usecase = new AddClientUseCase(repository)
 
     const input = {
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      address: '123 Main St',
+      name: 'Lucian',
+      email: 'lucian@123.com',
+      document: '1234-5678',
+      address: new Address(
+        'Rua 123',
+        '99',
+        'Casa Verde',
+        'Criciúma',
+        'SC',
+        '88888-888'
+      ),
     }
 
     const result = await usecase.execute(input)
 
     expect(repository.add).toHaveBeenCalled()
     expect(result.id).toBeDefined()
-    expect(result.name).toBe(input.name)
-    expect(result.email).toBe(input.email)
-    expect(result.address).toBe(input.address)
-    expect(result.createdAt).toBeDefined()
-    expect(result.updatedAt).toBeDefined()
+    expect(result.name).toEqual(input.name)
+    expect(result.email).toEqual(input.email)
+    expect(result.address).toEqual(input.address)
   })
 })
